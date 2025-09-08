@@ -79,7 +79,7 @@ libusb_device_handle *find_mouse(uint8_t *ep_addr, uint8_t* interface_num)
 										}
 									}
 
-									printf("mouse vendor id :%d, product id:%d\n",desc.idProduct, desc.idVendor);									
+									printf("mouse vendor id :%d, product id:%d\n",desc.idVendor, desc.idProduct);
 									break;
 								}
 							}
