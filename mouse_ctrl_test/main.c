@@ -78,6 +78,8 @@ libusb_device_handle *find_mouse(uint8_t *ep_addr, uint8_t* interface_num)
 											continue;
 										}
 									}
+
+									printf("mouse vendor id :%d, product id:%d\n",desc.idProduct, desc.idVendor);									
 									break;
 								}
 							}
@@ -140,15 +142,15 @@ int main(int argc, char *argv[])
 			// Main loop - continue until Ctrl+C is pressed
 			while (running) {
 				
-				ret = libusb_interrupt_transfer(handle, endp_addr, buffer, 16, &transferred,5000);
+				ret = libusb_interrupt_transfer(handle, endp_addr, buffer, 8, &transferred,5000);
 				
 				if (!ret) {
 					// Parse mouse data
-					if (transferred >= 3) {
+					if (transferred == 8) {
 						uint8_t buttons = buffer[0];
-						int8_t dx = (int8_t)buffer[1];  // X displacement (signed)
-						int8_t dy = (int8_t)buffer[2];  // Y displacement (signed)
-						int8_t scroll = (transferred >= 4) ? (int8_t)buffer[3] : 0;  // Scroll wheel
+						int8_t scroll = (int8_t)buffer[3];
+						int16_t dx = (int16_t)((buffer[4]) | (buffer[5] << 8));
+						int16_t dy = (int16_t)((buffer[6]) | (buffer[7] << 8));
 						
 						// Print raw data for debugging
 						printf("Raw data (%d bytes): ", transferred);
@@ -168,6 +170,7 @@ int main(int argc, char *argv[])
 								   left_btn, right_btn, middle_btn, dx, dy, scroll);
 						}
 					}
+
 				} else if (ret == LIBUSB_ERROR_TIMEOUT){
 					printf("libusb_interrupt_transfer timeout\n");
 				} else {
